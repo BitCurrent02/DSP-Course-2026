@@ -38,3 +38,8 @@ Therefore, the 5-point filter offers a better balance between noise reduction an
 One example is temperature monitoring of an electric motor.
 A temperature sensor can produce noisy measurements, even when the actual temperature is relatively stable. A moving-average filter can reduce these fluctuations and provide more stable temperature readings.
 However, the filter should not be too long because it could make sudden temperature changes harder to detect.
+
+## Use of AI
+I used ChatGPT to help me understand the different signal operations, convolution, and moving-average filtering.
+AI also helped me with the MATLAB code, explaining some commands and formulating my README answers in English.
+I ran the code in MATLAB, checked the figures, and compared the results to make sure everything worked correctly and that I understood what the different operations did.
