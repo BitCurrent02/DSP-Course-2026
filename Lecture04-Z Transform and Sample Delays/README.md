@@ -36,4 +36,4 @@
   ### 6. Change the system to H(z) = 0.8 + 0.2z⁻¹. Update b, run the code again, and explain which input sample now has more influence on the output.
   Now the first coefficient (0.8) of H(z) is larger and has more influence on the output than the second one (0.2). That means that x[n] has more influence than x[n-1]. But it is still an average filter, the difference is that the influence isn't the same anymore. It is weighted.
 
-  ![A system with one sample delay 0.5 0.5](A system with one sample delay 0.5 0.5.png)
+  ![A system with one sample delay 0.8 0.2](A system with one sample delay 0.8 0.2.png)
