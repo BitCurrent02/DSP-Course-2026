@@ -1,0 +1,99 @@
+clear; clc; close all;
+
+imageFiles = {'studded_tire.jpeg', 'summer_tire.jpg'};
+
+for i = 1:numel(imageFiles)
+
+    % ---------- 1) Read & resize ----------
+    I = imread(imageFiles{i});
+    I = imresize(I, 0.5);   % optional scaling
+
+    % ---------- 2) Convert to grayscale ----------
+    % TODO: if image is RGB, convert using rgb2gray()
+   
+    if size(I, 3) == 3
+        Igray = rgb2gray(I);
+    else
+        Igray = I;
+    end
+
+    % ---------- 3) Create tire mask ----------
+    % Hint: tire is darker than white background
+    % tireMask = Igray < THRESHOLD;
+    % TODO: fill holes and remove small objects
+
+    tireMask = Igray < 160;
+    tireMask = imfill(tireMask, 'holes');
+    tireMask = bwareaopen(tireMask, 100);
+
+    % ---------- 4) Candidate studs ----------
+    % Hint: studs are bright points INSIDE the tire
+    % cand = (Igray > BRIGHT_THRESHOLD) & tireMask;
+    % TODO: remove small noise, optional blur, fill holes
+
+    cand = (Igray > 175) & tireMask;
+    cand = imfill(cand, 'holes');
+    cand = bwareaopen(cand, 4);
+
+    % ---------- 5) Connected components ----------
+    
+    CC = bwconncomp(cand);
+    stats = regionprops(CC, 'Area', 'Perimeter', 'Eccentricity');
+
+    % ---------- 6) Filter candidates ----------
+    studMask = false(size(cand));
+    studCount = 0;
+
+    minA = 4;
+    maxA = 120;
+    minCirc = 0.65;
+    maxEcc = 0.80;
+
+    for k = 1:numel(stats)
+
+        A = stats(k).Area;
+        P = stats(k).Perimeter;
+        Ecc = stats(k).Eccentricity;
+
+        if P > 0
+            Circ = 4*pi*A/P^2;
+
+            if A >= minA && A <= maxA && ...
+               Circ >= minCirc && Ecc <= maxEcc
+
+                studMask(CC.PixelIdxList{k}) = true;
+                studCount = studCount + 1;
+
+            end
+        end
+    end
+
+    % TODO: loop over stats, apply filters, count valid studs
+    % for k = 1:numel(stats)
+    %   ...
+    % end
+
+    % ---------- 7) Decision rule ----------
+    % Use studCount and/or density = studCount / tireArea
+    % Example:
+    isStudded = (studCount > 10);
+
+    % ---------- 8) Visualization ----------
+    figure;
+    subplot(1,3,1);
+    imshow(I); title(sprintf('Input: %s', imageFiles{i}), 'Interpreter','none');
+
+    subplot(1,3,2);
+    imshow(cand); title('Candidate studs (binary)');
+
+    subplot(1,3,3);
+    imshow(I); hold on;
+    visboundaries(studMask, 'LineWidth', 0.7);
+
+    if isStudded
+        title(sprintf('STUDDED TIRE (studs: %d)', studCount));
+    else
+        title(sprintf('NON-STUDDED TIRE (studs: %d)', studCount));
+    end
+
+end
